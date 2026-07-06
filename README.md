@@ -309,12 +309,12 @@ CAN-Based-Engine-Monitoring-and-Vehicle-Control-System
 <tr>
 
 <td align="center" valign="top">
-<img src="Reverse_Alert_Node/Images/Reverse Alert Node Initializing.png" alt="Reverse Initialization" width="420"/>
+<img src="Reverse_alert_Node/Images/Reverse Alert Node Initializing.png" alt="Reverse Initialization" width="420"/>
 
 </td>
 
 <td align="center" valign="top">
-<img src="Reverse_Alert_Node/Images/Reverse Alert Node Safe Zone.png" alt="Safe Zone" width="420"/>
+<img src="Reverse_alert_Node/Images/Reverse Alert Node Safe Zone.png" alt="Safe Zone" width="420"/>
 
 </td>
 
@@ -328,11 +328,11 @@ CAN-Based-Engine-Monitoring-and-Vehicle-Control-System
 <tr>
 
 <td align="center" valign="top">
-<img src="Reverse_Alert_Node/Images/Reverse Alert Node Warning Zone.png" alt="Warning Zone" width="420"/>
+<img src="Reverse_alert_Node/Images/Reverse Alert Node Warning Zone.png" alt="Warning Zone" width="420"/>
 </td>
 
 <td align="center" valign="top">
-<img src="Reverse_Alert_Node/Images/Reverse Alert Node Danger zone.png" alt="Danger Zone" width="420"/>
+<img src="Reverse_alert_Node/Images/Reverse Alert Node Danger zone.png" alt="Danger Zone" width="420"/>
 </td>
 
 </tr>
@@ -344,7 +344,7 @@ CAN-Based-Engine-Monitoring-and-Vehicle-Control-System
 <tr>
 
 <td colspan="2" align="center">
-<img src="Reverse_Alert_Node/Images/Reverse Alert Node Critical Zone.png" alt="Critical Zone" width="520"/>
+<img src="Reverse_alert_Node/Images/Reverse Alert Node Critical Zone.png" alt="Critical Zone" width="520"/>
 <b>🔴 Immediate Stop Vehicle (6 cm)</b>
 </td>
 
