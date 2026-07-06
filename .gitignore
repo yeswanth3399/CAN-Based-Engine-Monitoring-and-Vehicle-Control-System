@@ -1,0 +1,8 @@
+Objects/
+Listings/
+
+*.uvproj
+*.s
+*.uvopt
+*.uvgui.yeswa
+*.scvd
