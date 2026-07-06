@@ -87,7 +87,7 @@ The system continuously monitors engine temperature, controls power window movem
 | GP2D12 IR Sensor | 1 | Distance Measurement |
 | 20x4 LCD | 1 | Dashboard |
 | LEDs | 8 | Window Position |
-| Push Buttons | 3 | Mode Selection |
+| Push Buttons | 3 | Mode Selection and Window Control |
 | Buzzer | 1 | Critical Alert |
 | CAN Bus | 1 | Communication |
 
