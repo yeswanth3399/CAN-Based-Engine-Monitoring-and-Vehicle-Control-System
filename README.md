@@ -345,7 +345,9 @@ CAN-Based-Engine-Monitoring-and-Vehicle-Control-System
 
 <td colspan="2" align="center">
 <img src="Reverse_alert_node/Images/Reverse_Alert_Node_Critical_Zone.png" alt="Critical Zone" width="520"/>
-<b>🔴 Immediate Stop Vehicle (6 cm)</b>
+<div align="center">
+  <b>🔴 Immediate Stop Vehicle (6 cm)</b>
+</div>
 </td>
 
 </tr>
