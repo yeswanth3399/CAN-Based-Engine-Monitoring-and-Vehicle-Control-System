@@ -51,6 +51,7 @@ void Init_CAN1(void)
 
 void CAN1_Tx(struct CAN_Frame txFrame)
 {
+		u16 timeout = 1000;
     /* Wait for Transmit Buffer 1 Empty */
 
     while((C1GSR & TBS1_BIT_READ) == 0);
@@ -77,9 +78,17 @@ void CAN1_Tx(struct CAN_Frame txFrame)
 
     C1CMR = STB1_BIT_SET | TR_BIT_SET;
 
-    /* Wait for Transmission Complete */
 
-    while((C1GSR & TCS1_BIT_READ) == 0);
+
+		/* Wait for transmission with timeout */
+
+
+		while(((C1GSR & TCS1_BIT_READ) == 0) && timeout)
+		{
+			timeout--;
+		}
+
+/* Don't block forever */
 }
 
 

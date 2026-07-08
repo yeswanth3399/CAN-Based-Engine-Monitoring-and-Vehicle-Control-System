@@ -64,8 +64,11 @@ void Buzzer_Beep(void);
 
 void Return_To_Dashboard(void);
 
+
 void show_window_error(void);
 void show_reverse_error(void);
 
+u8 Check_Window_Node(void);
+u8 Check_Reverse_Node(void);
 
 #endif

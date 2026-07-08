@@ -35,6 +35,7 @@ typedef enum
 
 }DISPLAY_STATE_T;
 
+struct CAN_Frame AckFrame;
 
 static unsigned char WindowLevel = 0;
 
@@ -191,7 +192,7 @@ void Dashboard_Update(void)
     /* Always read latest temperature */
     Read_Temperature();
 
-    /* Warning screen currently active */
+     /* Warning screen currently active */
     if(DisplayState == DISPLAY_WARNING)
     {
         if(EngineTemp < TEMP_CRITICAL_MAX)
@@ -223,8 +224,7 @@ void Dashboard_Update(void)
         return;
     }
 
-
-		/* Update only temperature always */
+    /* Update only temperature always */
 		cmd_LCD(0xCA);
 		Display_Temperature();
 		str_LCD("   ");
@@ -305,7 +305,10 @@ void Window_Up_Mode(void)
     {
 
         cmd_LCD(0x94);
+				
         str_LCD("W MODE:OPEN  ST:MOVE");
+			  cmd_LCD(0xDE);
+				str_LCD("                    ");
 
         DisplayState = DISPLAY_WINDOW_UP;
     }
@@ -321,6 +324,8 @@ void Window_Down_Mode(void)
     {
         cmd_LCD(0x94);
          str_LCD("W MODE:CLOSE ST:MOVE");
+			cmd_LCD(0xDE);
+				str_LCD("                    ");
 
         DisplayState = DISPLAY_WINDOW_DOWN;
     }
@@ -401,8 +406,11 @@ void show_window_error(void)
 	str_LCD("..NODE  NOT  FOUND..");
 
 	delay_ms(1500);
-
 	Return_To_Dashboard();
+
+	Vehicle_Dashboard();
+
+	Dashboard_Update();
 }
 
 //Reverse Node error
@@ -423,7 +431,58 @@ void show_reverse_error(void)
 	str_LCD("..NODE  NOT  FOUND..");
 
 	delay_ms(1500);
-
 	Return_To_Dashboard();
+
+	Vehicle_Dashboard();
+
+	Dashboard_Update();
 }
 
+//Check Window Node
+u8 Check_Window_Node(void)
+{
+    u16 timeout = 100;
+
+    struct CAN_Frame frame;
+
+    while(timeout--)
+    {
+        if(C1GSR & RBS_BIT_READ)
+        {
+            CAN1_Rx(&frame);
+
+            if(frame.ID == CAN_ID_WINDOW_STATUS)
+                return 1;
+        }
+
+        delay_ms(1);
+    }
+
+    return 0;
+}
+
+//check reverse node
+u8 Check_Reverse_Node(void)
+{
+    u16 timeout = 100;
+
+    struct CAN_Frame frame;
+
+    while(timeout--)
+    {
+        if(C1GSR & RBS_BIT_READ)
+        {
+            CAN1_Rx(&frame);
+
+            if((frame.ID == CAN_ID_DISTANCE) &&
+               (frame.vbf.DLC == 1))
+            {
+                return 1;
+            }
+        }
+
+        delay_ms(1);
+    }
+
+    return 0;
+}

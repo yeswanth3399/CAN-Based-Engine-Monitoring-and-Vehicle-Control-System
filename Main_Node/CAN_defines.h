@@ -19,8 +19,6 @@
  *                  APPLICATION CAN IDENTIFIERS
  *====================================================================*/
 
-#define CAN_ID_WINDOW_STATUS    0x201
-
 /* Main Node -> Window Control Node */
 #define CAN_ID_WINDOW_CTRL      (0x101)
 
@@ -29,6 +27,8 @@
 
 /* Reverse Alert Node -> Main Node */
 #define CAN_ID_DISTANCE         (0x103)
+
+#define CAN_ID_WINDOW_STATUS    0x201
 
 /*====================================================================
  *                  WINDOW CONTROL COMMANDS

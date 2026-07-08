@@ -25,6 +25,7 @@ static u8 ReverseMode = 0;
 /* CAN Frames */
 struct CAN_Frame TxFrame;
 struct CAN_Frame RxFrame;
+
 /*=========================================================
                 MAIN FUNCTION
 =========================================================*/
@@ -51,6 +52,7 @@ int main(void)
     TxFrame.Data1 = 0;
     TxFrame.Data2 = 0;
 
+
     /*====================================================
                     Main Loop
     ====================================================*/
@@ -68,26 +70,27 @@ int main(void)
 						{
 								case CAN_ID_REVERSE_ENABLE:
 
-										if(RxFrame.Data1 == REVERSE_ON)
-										{
-												ReverseMode = 1;
-										}
-										else if(RxFrame.Data1 == REVERSE_OFF)
-										{
-												ReverseMode = 0;
-												Distance = 0.0f;
+												if(RxFrame.Data1 == REVERSE_ON)
+												{
+														ReverseMode = 1;
+												}
+												else if(RxFrame.Data1 == REVERSE_OFF)
+												{
+														ReverseMode = 0;
 
-												TxFrame.Data1 = 0;
-												TxFrame.Data2 = 0;
-										}
+														Distance = 0.0f;
+
+														TxFrame.Data1 = 0;
+														TxFrame.Data2 = 0;
+												}
 
 										break;
 
-								default:
-										/* Ignore other CAN messages */
-										break;
-						}
-				}
+									default:
+
+												break;
+							}
+}
 
         /*------------------------------------------------
             Reverse Mode Active

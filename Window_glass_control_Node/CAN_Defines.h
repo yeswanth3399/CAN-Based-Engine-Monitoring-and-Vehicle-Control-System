@@ -21,8 +21,7 @@
 
 /* Main Node -> Window Control Node */
 #define CAN_ID_WINDOW_CTRL        (0x101)
-
-#define CAN_ID_WINDOW_STATUS    0x201
+#define CAN_ID_WINDOW_STATUS       0x201
 
 
 
