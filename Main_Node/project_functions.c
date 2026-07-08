@@ -177,10 +177,10 @@ void Vehicle_Dashboard(void)
 			str_LCD("ENG TEMP:  ");
 
 			cmd_LCD(0x94);
-			str_LCD("MODE : FORWARD ");
+			str_LCD("MODE    : FORWARD   ");
 
 			cmd_LCD(0xD4);
-			str_LCD("STATUS : ");
+			str_LCD("STATUS  : ");
 
 			DisplayState = DISPLAY_DASHBOARD;
 		}
@@ -197,6 +197,18 @@ void Dashboard_Update(void)
         if(EngineTemp < TEMP_CRITICAL_MAX)
         {
             Return_To_Dashboard();
+						Vehicle_Dashboard();
+
+						cmd_LCD(0xCA);
+						Display_Temperature();
+
+						cmd_LCD(0xDE);
+						str_LCD("          ");
+
+						cmd_LCD(0xDE);
+						Display_Engine_Status();
+
+						return;
         }
         else
         {
@@ -213,17 +225,17 @@ void Dashboard_Update(void)
 
 
 		/* Update only temperature always */
-		cmd_LCD(0xC9);
+		cmd_LCD(0xCA);
 		Display_Temperature();
 		str_LCD("   ");
 
 		/* Update engine status only in Dashboard */
 		if(DisplayState == DISPLAY_DASHBOARD)
 		{
-			cmd_LCD(0xDD);
+			cmd_LCD(0xDE);
 			str_LCD("          ");
 
-			cmd_LCD(0xDD);
+			cmd_LCD(0xDE);
 			Display_Engine_Status();
 		}
 }
