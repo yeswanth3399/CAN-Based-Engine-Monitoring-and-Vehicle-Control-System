@@ -80,19 +80,15 @@ void EINT2_ISR(void) __irq
     EXTINT = (1<<2);
 
     /* Falling edge -> Reverse Switch Pressed */
-    if((EXTPOLAR & (1<<2)) == 0)
+    if(CurrentMode!= REVERSE_MODE)
     {
         CurrentMode = REVERSE_MODE;
-
-        EXTPOLAR |= (1<<2);
     }
     /* Rising edge -> Reverse Switch Released */
     else
     {
 			  Return_To_Dashboard();
         CurrentMode = DASHBOARD_MODE;
-
-        EXTPOLAR &= ~(1<<2);
     }
 
     VICVectAddr = 0;

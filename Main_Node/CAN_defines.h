@@ -19,6 +19,8 @@
  *                  APPLICATION CAN IDENTIFIERS
  *====================================================================*/
 
+#define CAN_ID_WINDOW_STATUS    0x201
+
 /* Main Node -> Window Control Node */
 #define CAN_ID_WINDOW_CTRL      (0x101)
 
@@ -117,5 +119,6 @@
 #define TBS1_BIT_READ           (1U << 2)
 
 #define TCS1_BIT_READ           (1U << 3)
+
 
 #endif

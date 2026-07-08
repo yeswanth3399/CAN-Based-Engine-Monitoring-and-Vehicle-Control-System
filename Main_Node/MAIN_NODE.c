@@ -20,6 +20,7 @@ volatile MODE_T PreviousMode;
 volatile u8 WindowStopPending = 0;
 volatile u8 ReverseStopPending = 0;
 
+u16 ReverseTimeout = 0;
 
 /*=========================================================
  * CAN Frame Structures
@@ -48,7 +49,7 @@ int main(void)
     /*-----------------------------------------------------
      * CAN Initialization
      *----------------------------------------------------*/
-    //Init_CAN1();
+    Init_CAN1();
 
     cmd_LCD(0x01);
     cmd_LCD(0x80);
@@ -122,8 +123,41 @@ int main(void)
 
 												TX_frame1.Data1 = WINDOW_UP_START_CMD;
 												TX_frame1.Data2 = 0;
-
+												
+												while(C1GSR & RBS_BIT_READ)
+												{
+													CAN1_Rx(&Rx_frame);
+												}
 												CAN1_Tx(TX_frame1);
+
+												delay_ms(20);
+
+												if(C1GSR & RBS_BIT_READ)
+												{
+														CAN1_Rx(&Rx_frame);
+
+														if((Rx_frame.ID != CAN_ID_WINDOW_STATUS) ||
+																(Rx_frame.Data1 != WINDOW_UP_START_CMD))
+														{
+																show_window_error();
+
+																PreviousMode = DASHBOARD_MODE;
+																CurrentMode = DASHBOARD_MODE;
+
+
+
+																break;
+														}
+												}
+												else
+												{
+														show_window_error();
+
+														PreviousMode = DASHBOARD_MODE;
+														CurrentMode = DASHBOARD_MODE;
+
+														break;
+												}
 
 												WindowStopPending = 1;
 
@@ -131,9 +165,10 @@ int main(void)
 										}
 
 										Window_Up_Animation();
+										Dashboard_Update();
 
-										delay_ms(50);
-
+										delay_ms(100);
+										
 										break;
             /*=================================================
              * WINDOW DOWN MODE
@@ -141,8 +176,8 @@ int main(void)
 						
 							case WINDOW_DOWN_MODE:
 
-									if(PreviousMode != WINDOW_DOWN_MODE)
-									{
+										if(PreviousMode != WINDOW_DOWN_MODE)
+										{
 												Window_Down_Mode();
 
 												TX_frame1.Data1 = WINDOW_DOWN_START_CMD;
@@ -150,16 +185,42 @@ int main(void)
 
 												CAN1_Tx(TX_frame1);
 
+												delay_ms(20);
+
+												if(C1GSR & RBS_BIT_READ)
+												{
+														CAN1_Rx(&Rx_frame);
+
+														if((Rx_frame.ID != CAN_ID_WINDOW_STATUS) ||
+																(Rx_frame.Data1 != WINDOW_DOWN_START_CMD))
+														{
+																show_window_error();
+
+																CurrentMode = DASHBOARD_MODE;
+
+																break;
+														}
+												}
+												else
+												{
+														show_window_error();
+
+														CurrentMode = DASHBOARD_MODE;
+
+														break;
+												}
+
 												WindowStopPending = 1;
 
 												PreviousMode = WINDOW_DOWN_MODE;
-									}
+										}
 
-									Window_Down_Animation();
+										Window_Down_Animation();
+										Dashboard_Update();
 
-									delay_ms(50);
+										delay_ms(100);
 
-									break;            
+										break;            
 						/*=================================================
 						* REVERSE MODE
 						*================================================*/
@@ -168,7 +229,11 @@ int main(void)
 								if(PreviousMode != REVERSE_MODE)
 								{
 										Reverse_Mode_Screen();
-
+										
+										while(C1GSR & RBS_BIT_READ)
+										{
+												CAN1_Rx(&Rx_frame);
+										}
 										TX_frame2.Data1 = REVERSE_ON;
 										TX_frame2.Data2 = 0;
 
@@ -178,61 +243,88 @@ int main(void)
 
 										PreviousMode = REVERSE_MODE;
 								}
+								
+								/* Check for CAN frame */
+							if(C1GSR & RBS_BIT_READ)
+							{
+									CAN1_Rx(&Rx_frame);
 
-								if(C1GSR & RBS_BIT_READ)
-								{
-										CAN1_Rx(&Rx_frame);
+									switch(Rx_frame.ID)
+									{
+											case CAN_ID_DISTANCE:
 
-										if(Rx_frame.ID == CAN_ID_DISTANCE)
-										{
-												ReverseDistance = Rx_frame.Data1;
+														ReverseDistance = Rx_frame.Data1;
 
-												cmd_LCD(0xC0);
-												str_LCD("DIST : ");
+														/* Reverse Node is alive */
+														ReverseTimeout = 0;
 
-												u32_LCD(ReverseDistance);
+														cmd_LCD(0xC0);
+														str_LCD("DIST : ");
 
-												str_LCD(" CM   ");
+														u32_LCD(ReverseDistance);
 
-												if(ReverseDistance > SAFE_ZONE_LIMIT)
-												{
-														cmd_LCD(0x94);
-														str_LCD("ZONE : SAFE      ");
+														str_LCD(" CM   ");
 
-														cmd_LCD(0xD4);
-														str_LCD("PATH CLEAR       ");
-												}
-												else if(ReverseDistance > WARNING_ZONE_LIMIT)
-												{
-														cmd_LCD(0x94);
-														str_LCD("ZONE : WARNING   ");
+														if(ReverseDistance > SAFE_ZONE_LIMIT)
+														{
+															cmd_LCD(0x94);
+															str_LCD("ZONE : SAFE      ");
 
-														cmd_LCD(0xD4);
-														str_LCD("OBJECT NEARBY    ");
-												}
-												else if(ReverseDistance > DANGER_ZONE_LIMIT)
-												{
-														cmd_LCD(0x94);
-														str_LCD("ZONE : DANGER    ");
+															cmd_LCD(0xD4);
+															str_LCD("PATH CLEAR       ");
+														}
+														else if(ReverseDistance > WARNING_ZONE_LIMIT)
+														{
+																cmd_LCD(0x94);
+																str_LCD("ZONE : WARNING   ");
 
-														cmd_LCD(0xD4);
-														str_LCD("SLOW DOWN        ");
-												}
-												else
-												{
-														Buzzer_Beep();
+																cmd_LCD(0xD4);
+																str_LCD("OBJECT NEARBY    ");
+														}
+														else if(ReverseDistance > DANGER_ZONE_LIMIT)
+														{
+																cmd_LCD(0x94);
+																str_LCD("ZONE : DANGER    ");
 
-														cmd_LCD(0x94);
-														str_LCD("ZONE : CRITICAL  ");
+																cmd_LCD(0xD4);
+																str_LCD("SLOW DOWN        ");
+														}
+														else
+														{
+																Buzzer_Beep();
 
-														cmd_LCD(0xD4);
-														str_LCD("STOP VEHICLE     ");
-												}
+																cmd_LCD(0x94);
+																str_LCD("ZONE : CRITICAL  ");
+
+																cmd_LCD(0xD4);
+																str_LCD("STOP VEHICLE     ");
+														}
+
+														break;
+
+											default:
+
+													/* Ignore any other CAN frames */
+
+														break;
 										}
 								}
+								else
+								{
+										ReverseTimeout++;
+
+										if(ReverseTimeout > 50)
+										{
+												show_reverse_error();
+
+												PreviousMode = DASHBOARD_MODE;
+												CurrentMode  = DASHBOARD_MODE;
+
+												ReverseStopPending = 0;
+										}
+								 }
 
 								delay_ms(30);
-
 								break;
 
             /*=================================================

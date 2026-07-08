@@ -17,11 +17,14 @@
                 GLOBAL VARIABLES
 =========================================================*/
 
-float Distance;
+static float Distance = 0.0f;
 
+/* Reverse Mode Status */
+static u8 ReverseMode = 0;
+
+/* CAN Frames */
 struct CAN_Frame TxFrame;
 struct CAN_Frame RxFrame;
-
 /*=========================================================
                 MAIN FUNCTION
 =========================================================*/
@@ -34,7 +37,7 @@ int main(void)
     Init_CAN1();
 
     /*----------------------------------------------------
-        Initialize GP2D12 Sensor (ADC)
+        Initialize GP2D12 Distance Sensor
     ----------------------------------------------------*/
     DistanceSensor_Init();
 
@@ -45,50 +48,75 @@ int main(void)
     TxFrame.vbf.RTR = 0;
     TxFrame.vbf.DLC = 1;
 
-    /*----------------------------------------------------
-        Main Loop
-    ----------------------------------------------------*/
+    TxFrame.Data1 = 0;
+    TxFrame.Data2 = 0;
+
+    /*====================================================
+                    Main Loop
+    ====================================================*/
+
     while(1)
     {
-        /* Wait for CAN command from Main Node */
+        /*------------------------------------------------
+            Check for CAN Commands
+        ------------------------------------------------*/
         if(C1GSR & RBS_BIT_READ)
+				{
+						CAN1_Rx(&RxFrame);
+
+						switch(RxFrame.ID)
+						{
+								case CAN_ID_REVERSE_ENABLE:
+
+										if(RxFrame.Data1 == REVERSE_ON)
+										{
+												ReverseMode = 1;
+										}
+										else if(RxFrame.Data1 == REVERSE_OFF)
+										{
+												ReverseMode = 0;
+												Distance = 0.0f;
+
+												TxFrame.Data1 = 0;
+												TxFrame.Data2 = 0;
+										}
+
+										break;
+
+								default:
+										/* Ignore other CAN messages */
+										break;
+						}
+				}
+
+        /*------------------------------------------------
+            Reverse Mode Active
+        ------------------------------------------------*/
+        if(ReverseMode)
         {
-            CAN1_Rx(&RxFrame);
+            /* Read GP2D12 Distance */
+            Distance = Distance_Read();
 
-            /*--------------------------------------------
-              Reverse Mode ON
-            --------------------------------------------*/
-            if((RxFrame.ID == CAN_ID_REVERSE_ENABLE) &&
-               (RxFrame.Data1 == REVERSE_ON))
+            /* Limit distance */
+            if(Distance < 0.0f)
             {
-                /* Read Distance */
-                Distance = Distance_Read();
-
-                /* Limit to one CAN data byte */
-                if(Distance > 255.0f)
-                    Distance = 255.0f;
-
-                if(Distance < 0.0f)
-                    Distance = 0.0f;
-
-                /* Send Distance */
-                TxFrame.Data1 = (unsigned int)Distance;
-                TxFrame.Data2 = 0;
-
-                CAN1_Tx(TxFrame);
-
-                delay_ms(100);
+                Distance = 0.0f;
+            }
+            else if(Distance > 255.0f)
+            {
+                Distance = 255.0f;
             }
 
-            /*--------------------------------------------
-              Reverse Mode OFF
-            --------------------------------------------*/
-            else if((RxFrame.ID == CAN_ID_REVERSE_ENABLE) &&
-                    (RxFrame.Data1 == REVERSE_OFF))
-            {
-                /* Nothing to do.
-                   Main Node handles buzzer and display. */
-            }
+            /* Prepare CAN Frame */
+            TxFrame.Data1 = (u8)(Distance + 0.5f);   // Rounded distance
+            TxFrame.Data2 = 0;
+
+            /* Send Distance to Main Node */
+            CAN1_Tx(TxFrame);
+			
+
+            /* Update every 100 ms */
+            delay_ms(100);
         }
     }
 }

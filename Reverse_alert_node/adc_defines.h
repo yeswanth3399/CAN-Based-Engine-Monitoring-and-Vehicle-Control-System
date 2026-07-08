@@ -13,4 +13,4 @@
 #define DIGITAL_DATA_BITS		6//@p0.6-p0.15
 #define DONE_BIT 						31
 #define CLKDIV				((PCLK/ADC_CLK)-1)
-#define AIN0_FUNC			0x00400000
+#define AIN0_FUNC			0x15400000

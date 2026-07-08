@@ -3,7 +3,7 @@
 #include "types.h"
 #include "delays.h"
 
-#define DS18B20_PIN		11//p0.11
+#define DS18B20_PIN		22//p0.22
 /*Standard command sequence for ds18b20
 1. Reset Pulse Initialize 1-Wire Bus
 2. SKIP ROM (0xCC)

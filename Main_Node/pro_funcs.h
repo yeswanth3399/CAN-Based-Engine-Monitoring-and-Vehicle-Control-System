@@ -1,6 +1,6 @@
 #ifndef __PRO_FUNCS_H__
 #define __PRO_FUNCS_H__
-
+#include "types.h"
 /*=========================================================
  *
  *      CAN BASED ENGINE MONITORING & VEHICLE CONTROL SYSTEM
@@ -63,5 +63,9 @@ void Reverse_Mode_Screen(void);
 void Buzzer_Beep(void);
 
 void Return_To_Dashboard(void);
+
+void show_window_error(void);
+void show_reverse_error(void);
+
 
 #endif

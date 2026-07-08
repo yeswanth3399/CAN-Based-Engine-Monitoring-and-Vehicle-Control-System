@@ -9,7 +9,7 @@ void Init_ADC(void)
 	//cfg pins p0.27-p0.30
 	//using to connect block for 
 	//AIN0-AIN1 pin functions
-	PINSEL1&=(~((u32)0xff<<((u32)((27-16)*2))));
+	PINSEL1&=(~((u32)3<<((u32)((27-16)*2))));
 	PINSEL1|=AIN0_FUNC;
 	
 	//cfg ADCR

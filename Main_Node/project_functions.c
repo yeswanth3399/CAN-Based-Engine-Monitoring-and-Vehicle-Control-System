@@ -5,6 +5,8 @@
 #include "delays.h"
 #include "types.h"
 #include "pro_funcs.h"
+#include "CAN.h"
+#include "CAN_defines.h"
 
 /*=========================================================
                 ENGINE TEMPERATURE LIMITS
@@ -32,6 +34,7 @@ typedef enum
     DISPLAY_WARNING
 
 }DISPLAY_STATE_T;
+
 
 static unsigned char WindowLevel = 0;
 
@@ -171,7 +174,7 @@ void Vehicle_Dashboard(void)
 			str_LCD("*****ENGINE SYS*****");
 
 			cmd_LCD(0xC0);
-			str_LCD("TEMP : ");
+			str_LCD("ENG TEMP:  ");
 
 			cmd_LCD(0x94);
 			str_LCD("MODE : FORWARD ");
@@ -208,21 +211,21 @@ void Dashboard_Update(void)
         return;
     }
 
-    /* Draw dashboard if required */
-    if(DisplayState != DISPLAY_DASHBOARD)
-    {
-        Vehicle_Dashboard();
-    }
 
-    /* Update live values */
-    cmd_LCD(0xC7);
+		/* Update only temperature always */
+		cmd_LCD(0xC9);
 		Display_Temperature();
 		str_LCD("   ");
 
-    cmd_LCD(0xDD);
-		str_LCD("          ");   // clear status field
-		cmd_LCD(0xDD);
-		Display_Engine_Status();
+		/* Update engine status only in Dashboard */
+		if(DisplayState == DISPLAY_DASHBOARD)
+		{
+			cmd_LCD(0xDD);
+			str_LCD("          ");
+
+			cmd_LCD(0xDD);
+			Display_Engine_Status();
+		}
 }
 /*=========================================================
                 WINDOW UP ANIMATION
@@ -246,7 +249,7 @@ void Window_Up_Animation(void)
 
     for(i=WindowLevel;i<8;i++)
     {
-        char_LCD('|');
+        char_LCD(' ');
     }
 
     char_LCD(']');
@@ -274,7 +277,7 @@ void Window_Down_Animation(void)
 
     for(i=WindowLevel;i<8;i++)
     {
-        char_LCD('|');
+        char_LCD(' ');
     }
 
     char_LCD(']');
@@ -288,16 +291,9 @@ void Window_Up_Mode(void)
 {
     if(DisplayState != DISPLAY_WINDOW_UP)
     {
-        cmd_LCD(0x01);
-
-        cmd_LCD(0x80);
-        str_LCD("****WINDOW  CTRL****");
-
-        cmd_LCD(0xC0);
-        str_LCD("MODE : OPENING      ");
 
         cmd_LCD(0x94);
-        str_LCD("STATUS : MOVING     ");
+        str_LCD("W MODE:OPEN  ST:MOVE");
 
         DisplayState = DISPLAY_WINDOW_UP;
     }
@@ -311,16 +307,8 @@ void Window_Down_Mode(void)
 {
     if(DisplayState != DISPLAY_WINDOW_DOWN)
     {
-        cmd_LCD(0x01);
-
-        cmd_LCD(0x80);
-        str_LCD("****WINDOW  CTRL****");
-
-        cmd_LCD(0xC0);
-        str_LCD("MODE : CLOSING      ");
-
         cmd_LCD(0x94);
-        str_LCD("STATUS : MOVING     ");
+         str_LCD("W MODE:CLOSE ST:MOVE");
 
         DisplayState = DISPLAY_WINDOW_DOWN;
     }
@@ -381,3 +369,49 @@ void Return_To_Dashboard(void)
 {
     DisplayState = DISPLAY_STARTUP;
 }
+
+
+//Window Node error
+void show_window_error(void)
+{
+	cmd_LCD(0x01);
+
+	cmd_LCD(0x80);
+	str_LCD("*****  ERROR   *****");
+
+	cmd_LCD(0xc0);
+	str_LCD("..WINDOW NODE FAIL..");
+
+	cmd_LCD(0x94);
+	str_LCD("..CHECK CAN WIRING..");
+
+	cmd_LCD(0xD4);
+	str_LCD("..NODE  NOT  FOUND..");
+
+	delay_ms(1500);
+
+	Return_To_Dashboard();
+}
+
+//Reverse Node error
+void show_reverse_error(void)
+{
+	cmd_LCD(0x01);
+
+	cmd_LCD(0x80);
+	str_LCD("*****  ERROR   *****");
+
+	cmd_LCD(0xc0);
+	str_LCD(".REVERSE NODE  FAIL.");
+
+	cmd_LCD(0x94);
+	str_LCD("..CHECK CAN WIRING..");
+
+	cmd_LCD(0xD4);
+	str_LCD("..NODE  NOT  FOUND..");
+
+	delay_ms(1500);
+
+	Return_To_Dashboard();
+}
+

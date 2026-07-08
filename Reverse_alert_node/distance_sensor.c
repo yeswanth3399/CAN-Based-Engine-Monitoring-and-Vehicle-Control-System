@@ -28,10 +28,10 @@
 #define GP2D12_MAX_DISTANCE_CM    (80.0f)
 
 /* Voltage corresponding approximately to 80 cm */
-#define GP2D12_MIN_VOLTAGE        (0.42f)
+#define GP2D12_MIN_VOLTAGE        (0.20f)
 
 /* Distance conversion constant */
-#define GP2D12_DISTANCE_CONSTANT  (27.86f)
+#define GP2D12_DISTANCE_CONSTANT  (23.0f)
 
 /*====================================================================
  *                  LOCAL VARIABLES
@@ -118,4 +118,3 @@ float Distance_Read(void)
 
     return distance;
 }
-	
