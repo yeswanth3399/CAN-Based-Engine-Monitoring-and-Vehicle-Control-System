@@ -10,7 +10,6 @@
 --------------------------------------------------------*/
 struct CAN_Frame RxFrame;
 struct CAN_Frame StatusFrame;
-
 /*--------------------------------------------------------
                 Window State
 --------------------------------------------------------*/
@@ -34,12 +33,12 @@ int main(void)
 
     /* Initialize Window LEDs */
     Window_Init();
-		StatusFrame.ID = CAN_ID_WINDOW_STATUS;
-		StatusFrame.vbf.RTR = 0;
-		StatusFrame.vbf.DLC = 1;
-		StatusFrame.Data1 = 0;
-		StatusFrame.Data2 = 0;
-
+	
+	StatusFrame.ID = CAN_ID_WINDOW_STATUS;
+	StatusFrame.vbf.RTR =0;
+	StatusFrame.vbf.DLC=1;
+	StatusFrame.Data1=0;
+	StatusFrame.Data2=0;
 
 
     while(1)
@@ -47,48 +46,27 @@ int main(void)
         /*------------------------------------------
           Receive CAN Command
         ------------------------------------------*/
-        if(C1GSR & RBS_BIT_READ)
+        if(CAN1_Rx(&RxFrame))
         {
-            CAN1_Rx(&RxFrame);
-
             if(RxFrame.ID == CAN_ID_WINDOW_CTRL)
             {
                 switch(RxFrame.Data1)
                 {
                     case WINDOW_UP_START_CMD:
 
-												if(WindowState != WINDOW_UP)
-												{
-														WindowState = WINDOW_UP;
+                        WindowState = WINDOW_UP;
 
-														StatusFrame.Data1 = WINDOW_UP_START_CMD;
+                        break;
 
-														CAN1_Tx(StatusFrame);
-												}
-
-												break;
                     case WINDOW_DOWN_START_CMD:
 
-                        if(WindowState != WINDOW_DOWN)
-												{
-														WindowState = WINDOW_DOWN;
+                        WindowState = WINDOW_DOWN;
 
-														StatusFrame.Data1 = WINDOW_DOWN_START_CMD;
-
-														CAN1_Tx(StatusFrame);
-												}
                         break;
 
                     case WINDOW_STOP_CMD:
 
-                        if(WindowState != WINDOW_STOP)
-												{
-														WindowState = WINDOW_STOP;
-
-														StatusFrame.Data1 = WINDOW_STOP_CMD;
-
-														CAN1_Tx(StatusFrame);
-												}
+                        WindowState = WINDOW_STOP;
                         break;
 
                     default:
@@ -97,6 +75,9 @@ int main(void)
                 }
             }
         }
+		StatusFrame.Data1=WindowState;
+		CAN1_Tx(StatusFrame);
+		delay_ms(100);
 
         /*------------------------------------------
           Execute Window Movement
@@ -108,7 +89,7 @@ int main(void)
 
                 Window_Up();
 
-                delay_ms(200);
+                delay_ms(250);
 
                 break;
 
@@ -116,7 +97,7 @@ int main(void)
 
                 Window_Down();
 
-                delay_ms(200);
+                delay_ms(250);
 
                 break;
 

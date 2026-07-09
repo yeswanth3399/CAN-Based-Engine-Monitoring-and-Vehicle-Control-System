@@ -1,27 +1,46 @@
 #include <LPC21xx.h>
 
+
 #include "LCD.h"
+
 #include "DS18B20.h"
+
 #include "delays.h"
+
 #include "types.h"
+
 #include "pro_funcs.h"
+
 #include "CAN.h"
+
 #include "CAN_defines.h"
 
+
 /*=========================================================
+
                 ENGINE TEMPERATURE LIMITS
+
 =========================================================*/
+
 
 #define TEMP_NORMAL_MAX      40
+
 #define TEMP_WARM_MAX        70
+
 #define TEMP_CRITICAL_MAX    90
 
-/*=========================================================
-                GLOBAL VARIABLES
-=========================================================*/
 
 /*=========================================================
+
+                GLOBAL VARIABLES
+
+=========================================================*/
+
+
+/*=========================================================
+
                 DISPLAY STATES
+
 =========================================================*/
 
 typedef enum
@@ -32,13 +51,9 @@ typedef enum
     DISPLAY_WINDOW_DOWN,
     DISPLAY_REVERSE,
     DISPLAY_WARNING
-
 }DISPLAY_STATE_T;
 
-struct CAN_Frame AckFrame;
-
 static unsigned char WindowLevel = 0;
-
 static int EngineTemp;
 static DISPLAY_STATE_T DisplayState = DISPLAY_STARTUP;
 
@@ -46,14 +61,16 @@ f32 temp;
 s32 tVal;
 u16 intPart,fracPart;
 
+
 /*=========================================================
+
                 DISPLAY TEMPERATURE
+
 =========================================================*/
 
 void Read_Temperature(void)
 {
 		s8 sign=1;
-
     temp = (ds18b20_read_temperature());
 		tVal=temp*10000;
 	
@@ -70,24 +87,24 @@ void Read_Temperature(void)
 }
 
 void Display_Temperature(void)
-{
-		if(EngineTemp < 0)
-    {
-        char_LCD('-');
-		}
+ {
+ 	if(EngineTemp < 0)
+     {
+         char_LCD('-');
+ 	}
 		u32_LCD(intPart);
-
     char_LCD('.');
-
-		char_LCD((fracPart/1000) + '0');
-		char_LCD(((fracPart/100) % 10) + '0');
+    char_LCD((fracPart/1000) + '0');
+   char_LCD(((fracPart/100) % 10) + '0');
 
     char_LCD(0xDF);
     char_LCD('C');
 }
 
 /*=========================================================
+
                 ENGINE STATUS
+
 =========================================================*/
 
 void Display_Engine_Status(void)
@@ -97,7 +114,7 @@ void Display_Engine_Status(void)
         str_LCD("NORMAL     ");
     }
     else if(EngineTemp < TEMP_WARM_MAX)
-    {
+   {
         str_LCD("WARMING    ");
     }
     else if(EngineTemp < TEMP_CRITICAL_MAX)
@@ -111,24 +128,24 @@ void Display_Engine_Status(void)
 }
 
 /*=========================================================
+
                 OVERHEAT WARNING
+
 =========================================================*/
 
 void Overheat_Warning(void)
 {
     if(DisplayState == DISPLAY_WARNING)
         return;
-
     cmd_LCD(0x01);
 
     cmd_LCD(0x80);
     str_LCD("!!!!! WARNING !!!!!!");
-
     cmd_LCD(0xC0);
-    str_LCD("ENGINE OVERHEAT     ");
+	str_LCD("ENGINE OVERHEAT     ");
 
-    cmd_LCD(0x94);
-    str_LCD("STOP VEHICLE NOW    ");
+     cmd_LCD(0x94);
+	 str_LCD("STOP VEHICLE NOW    ");
 
     cmd_LCD(0xD4);
     str_LCD("CHECK COOLING SYS   ");
@@ -137,7 +154,9 @@ void Overheat_Warning(void)
 }
 
 /*=========================================================
+
                 STARTUP SCREEN
+
 =========================================================*/
 
 void Startup_Screen(void)
@@ -156,23 +175,26 @@ void Startup_Screen(void)
     cmd_LCD(0xD4);
     str_LCD("INITIALIZING........");
 
-    delay_s(2);
-
+   delay_s(2);
     cmd_LCD(0x01);
 }
 
+
 /*=========================================================
+
                 DASHBOARD
+
 =========================================================*/
+
 
 void Vehicle_Dashboard(void)
 {
-    if(DisplayState != DISPLAY_DASHBOARD)
-		{
-			cmd_LCD(0x01);
+	    if(DisplayState != DISPLAY_DASHBOARD)
+			{
+				cmd_LCD(0x01);
 
-			cmd_LCD(0x80);
-			str_LCD("*****ENGINE SYS*****");
+				cmd_LCD(0x80);
+				str_LCD("*****ENGINE SYS*****");
 
 			cmd_LCD(0xC0);
 			str_LCD("ENG TEMP:  ");
@@ -182,23 +204,22 @@ void Vehicle_Dashboard(void)
 
 			cmd_LCD(0xD4);
 			str_LCD("STATUS  : ");
-
 			DisplayState = DISPLAY_DASHBOARD;
 		}
 }
 
 void Dashboard_Update(void)
 {
-    /* Always read latest temperature */
-    Read_Temperature();
+	    /* Always read latest temperature */
+	    Read_Temperature();
 
-     /* Warning screen currently active */
-    if(DisplayState == DISPLAY_WARNING)
-    {
-        if(EngineTemp < TEMP_CRITICAL_MAX)
-        {
-            Return_To_Dashboard();
-						Vehicle_Dashboard();
+	     /* Warning screen currently active */
+	    if(DisplayState == DISPLAY_WARNING)
+	    {
+	        if(EngineTemp < TEMP_CRITICAL_MAX)
+	        {
+	            Return_To_Dashboard();
+	   						Vehicle_Dashboard();
 
 						cmd_LCD(0xCA);
 						Display_Temperature();
@@ -208,7 +229,6 @@ void Dashboard_Update(void)
 
 						cmd_LCD(0xDE);
 						Display_Engine_Status();
-
 						return;
         }
         else
@@ -216,13 +236,12 @@ void Dashboard_Update(void)
             return;
         }
     }
-
     /* Temperature became critical */
     if(EngineTemp >= TEMP_CRITICAL_MAX)
     {
         Overheat_Warning();
         return;
-    }
+     }
 
     /* Update only temperature always */
 		cmd_LCD(0xCA);
@@ -240,18 +259,19 @@ void Dashboard_Update(void)
 		}
 }
 /*=========================================================
+
                 WINDOW UP ANIMATION
+
 =========================================================*/
+
 
 void Window_Up_Animation(void)
 {
     unsigned int i;
-
     if(WindowLevel < 8)
         WindowLevel++;
 
     cmd_LCD(0xD4);
-
     str_LCD("LEVEL : [");
 
     for(i=0;i<WindowLevel;i++)
@@ -261,14 +281,16 @@ void Window_Up_Animation(void)
 
     for(i=WindowLevel;i<8;i++)
     {
-        char_LCD(' ');
+       char_LCD(' ');
     }
 
     char_LCD(']');
 }
 
 /*=========================================================
+
                 WINDOW DOWN ANIMATION
+
 =========================================================*/
 
 void Window_Down_Animation(void)
@@ -277,10 +299,9 @@ void Window_Down_Animation(void)
 
     if(WindowLevel > 0)
         WindowLevel--;
-
     cmd_LCD(0xD4);
 
-    str_LCD("LEVEL : [");
+   str_LCD("LEVEL : [");
 
     for(i=0;i<WindowLevel;i++)
     {
@@ -288,15 +309,16 @@ void Window_Down_Animation(void)
     }
 
     for(i=WindowLevel;i<8;i++)
-    {
-        char_LCD(' ');
-    }
-
-    char_LCD(']');
+     {
+         char_LCD(' ');
+     }
+     char_LCD(']');
 }
 
 /*=========================================================
+
                 WINDOW OPEN
+
 =========================================================*/
 
 void Window_Up_Mode(void)
@@ -304,19 +326,19 @@ void Window_Up_Mode(void)
     if(DisplayState != DISPLAY_WINDOW_UP)
     {
 
-        cmd_LCD(0x94);
-				
+        cmd_LCD(0x94);			
         str_LCD("W MODE:OPEN  ST:MOVE");
-			  cmd_LCD(0xDE);
-				str_LCD("                    ");
 
         DisplayState = DISPLAY_WINDOW_UP;
     }
 }
 
 /*=========================================================
+
                 WINDOW CLOSE
+
 =========================================================*/
+
 
 void Window_Down_Mode(void)
 {
@@ -324,50 +346,50 @@ void Window_Down_Mode(void)
     {
         cmd_LCD(0x94);
          str_LCD("W MODE:CLOSE ST:MOVE");
-			cmd_LCD(0xDE);
-				str_LCD("                    ");
 
         DisplayState = DISPLAY_WINDOW_DOWN;
     }
 }
-
 /*=========================================================
-                START VEHICLE
-=========================================================*/
 
+                START VEHICLE
+
+=========================================================*/
 void vehicle(void)
 {
     Startup_Screen();
 	  DisplayState = DISPLAY_STARTUP;
 }
-
 /*=========================================================
+
                 REVERSE SCREEN
+
 =========================================================*/
+
 
 void Reverse_Mode_Screen(void)
 {
 	  if(DisplayState == DISPLAY_REVERSE)
-			return;
+ 		return;
+
     cmd_LCD(0x01);
+        cmd_LCD(0x80);
+      str_LCD("****REVERSE MODE****");
+        cmd_LCD(0xC0);
+ 
+        str_LCD("MODE : ACTIVE       ");
+            cmd_LCD(0x94);
+        str_LCD("DIST : WAIT...      ");
 
-    cmd_LCD(0x80);
-    str_LCD("****REVERSE MODE****");
-
-    cmd_LCD(0xC0);
-    str_LCD("MODE : ACTIVE       ");
-
-    cmd_LCD(0x94);
-    str_LCD("DIST : WAIT...      ");
-
-    cmd_LCD(0xD4);
-    str_LCD("STATUS : READY      ");
+		   cmd_LCD(0xD4);
+	    str_LCD("STATUS : READY      ");
 		
 		DisplayState = DISPLAY_REVERSE;
 }
-
 /*=========================================================
+
                 ACTIVE HIGH BUZZER
+
 =========================================================*/
 
 void Buzzer_Beep(void)
@@ -378,21 +400,23 @@ void Buzzer_Beep(void)
 
     IOCLR0 = (1<<21);
 }
-/*=========================================================
-                RETURN TO DASHBOARD
-=========================================================*/
 
+/*=========================================================
+
+                RETURN TO DASHBOARD
+
+=========================================================*/
 void Return_To_Dashboard(void)
 {
     DisplayState = DISPLAY_STARTUP;
 }
 
+ //Window Node error
 
-//Window Node error
 void show_window_error(void)
 {
-	cmd_LCD(0x01);
 
+	cmd_LCD(0x01);
 	cmd_LCD(0x80);
 	str_LCD("*****  ERROR   *****");
 
@@ -406,16 +430,17 @@ void show_window_error(void)
 	str_LCD("..NODE  NOT  FOUND..");
 
 	delay_ms(1500);
+
 	Return_To_Dashboard();
-
 	Vehicle_Dashboard();
-
 	Dashboard_Update();
 }
 
 //Reverse Node error
+
 void show_reverse_error(void)
 {
+
 	cmd_LCD(0x01);
 
 	cmd_LCD(0x80);
@@ -432,57 +457,54 @@ void show_reverse_error(void)
 
 	delay_ms(1500);
 	Return_To_Dashboard();
-
 	Vehicle_Dashboard();
-
 	Dashboard_Update();
 }
 
+
 //Check Window Node
+
 u8 Check_Window_Node(void)
 {
+
     u16 timeout = 100;
+
 
     struct CAN_Frame frame;
 
+
     while(timeout--)
     {
-        if(C1GSR & RBS_BIT_READ)
+        if(CAN1_Rx(&frame))
         {
-            CAN1_Rx(&frame);
 
             if(frame.ID == CAN_ID_WINDOW_STATUS)
-                return 1;
+				  return 1;
         }
-
         delay_ms(1);
     }
-
     return 0;
 }
 
+
 //check reverse node
+
 u8 Check_Reverse_Node(void)
 {
     u16 timeout = 100;
-
     struct CAN_Frame frame;
 
     while(timeout--)
     {
-        if(C1GSR & RBS_BIT_READ)
+        if(CAN1_Rx(&frame))
         {
-            CAN1_Rx(&frame);
-
             if((frame.ID == CAN_ID_DISTANCE) &&
                (frame.vbf.DLC == 1))
             {
                 return 1;
             }
-        }
-
+         }
         delay_ms(1);
     }
-
     return 0;
 }

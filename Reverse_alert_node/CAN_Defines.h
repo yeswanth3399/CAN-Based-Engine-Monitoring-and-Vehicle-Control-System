@@ -102,5 +102,8 @@
 
 #define TCS1_BIT_READ            (1U << 3)
 
+//ACK Frames
+#define CAN_ID_WINDOW_ACK		 0x201
+#define CAN_ID_REVERSE_ACK		 0x202
 
 #endif

@@ -28,11 +28,11 @@
 /* Reverse Alert Node -> Main Node */
 #define CAN_ID_DISTANCE         (0x103)
 
-#define CAN_ID_WINDOW_STATUS    0x201
-
 /*====================================================================
  *                  WINDOW CONTROL COMMANDS
  *====================================================================*/
+
+#define CAN_ID_WINDOW_STATUS    0x201
 
 #define WINDOW_STOP_CMD         (0x00)
 
@@ -120,5 +120,8 @@
 
 #define TCS1_BIT_READ           (1U << 3)
 
+//ACK Frames
+#define CAN_ID_WINDOW_ACK 		0x201
+#define CAN_ID_REVERSE_ACK		0x202
 
 #endif

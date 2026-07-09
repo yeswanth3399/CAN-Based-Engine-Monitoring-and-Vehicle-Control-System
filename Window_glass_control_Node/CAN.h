@@ -43,6 +43,6 @@ void Init_CAN1(void);
 void CAN1_Tx(struct CAN_Frame txFrame);
 
 /* Receive CAN Frame */
-void CAN1_Rx(struct CAN_Frame *rxFrame);
+u8 CAN1_Rx(struct CAN_Frame *rxFrame);
 
 #endif

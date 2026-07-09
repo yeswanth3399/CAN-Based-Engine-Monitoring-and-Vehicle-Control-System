@@ -89,6 +89,7 @@ void EINT2_ISR(void) __irq
     {
 			  Return_To_Dashboard();
         CurrentMode = DASHBOARD_MODE;
+		      EXTPOLAR&=~(1<<2);
     }
 
     VICVectAddr = 0;

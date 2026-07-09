@@ -51,7 +51,6 @@ void Init_CAN1(void)
 
 void CAN1_Tx(struct CAN_Frame txFrame)
 {
-		u16 timeout = 1000;
     /* Wait for Transmit Buffer 1 Empty */
 
     while((C1GSR & TBS1_BIT_READ) == 0);
@@ -78,17 +77,9 @@ void CAN1_Tx(struct CAN_Frame txFrame)
 
     C1CMR = STB1_BIT_SET | TR_BIT_SET;
 
+    /* Wait for Transmission Complete */
 
-
-		/* Wait for transmission with timeout */
-
-
-		while(((C1GSR & TCS1_BIT_READ) == 0) && timeout)
-		{
-			timeout--;
-		}
-
-/* Don't block forever */
+    while((C1GSR & TCS1_BIT_READ) == 0);
 }
 
 
@@ -96,19 +87,22 @@ void CAN1_Tx(struct CAN_Frame txFrame)
  *                  CAN1 RECEIVE
  *====================================================================*/
 
-void CAN1_Rx(struct CAN_Frame *rxFrame)
+u8 CAN1_Rx(struct CAN_Frame *rxFrame)
 {
     /* Wait for Receive Buffer Full */
 
-    while((C1GSR & RBS_BIT_READ) == 0);
-
+    //while((C1GSR & RBS_BIT_READ) == 0);
+	 if((C1GSR & RBS_BIT_READ) == 0)
+	 {
+	 	return 0;
+	  }
     /* Read CAN Identifier */
 
     rxFrame->ID = C1RID;
 
     /* Read RTR Bit */
 
-    rxFrame->vbf.RTR = ((C1RFS >> 30) & 0x01);
+    rxFrame->vbf.RTR = ((C1RFS >> 30) & 1);
 
     /* Read DLC */
 
@@ -126,4 +120,5 @@ void CAN1_Rx(struct CAN_Frame *rxFrame)
     /* Release Receive Buffer */
 
     C1CMR = RRB_BIT_SET;
+	return 1;
 }

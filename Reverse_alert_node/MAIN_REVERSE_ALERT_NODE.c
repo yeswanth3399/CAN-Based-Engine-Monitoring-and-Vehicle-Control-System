@@ -62,35 +62,27 @@ int main(void)
         /*------------------------------------------------
             Check for CAN Commands
         ------------------------------------------------*/
-        if(C1GSR & RBS_BIT_READ)
-				{
-						CAN1_Rx(&RxFrame);
-
-						switch(RxFrame.ID)
-						{
-								case CAN_ID_REVERSE_ENABLE:
-
-												if(RxFrame.Data1 == REVERSE_ON)
-												{
-														ReverseMode = 1;
-												}
-												else if(RxFrame.Data1 == REVERSE_OFF)
-												{
-														ReverseMode = 0;
-
-														Distance = 0.0f;
-
-														TxFrame.Data1 = 0;
-														TxFrame.Data2 = 0;
-												}
-
-										break;
-
-									default:
-
-												break;
-							}
-}
+        if(CAN1_Rx(&RxFrame))
+        {
+			switch(RxFrame.ID)
+			{
+				case CAN_ID_REVERSE_ENABLE:
+					if(RxFrame.Data1 == REVERSE_ON)
+               	 	{
+                    	ReverseMode = 1;
+					}			 
+                	else if(RxFrame.Data1 == REVERSE_OFF)
+                	{
+                   	 	ReverseMode = 0;
+						Distance=0;
+						TxFrame.Data1=0;
+						TxFrame.Data2=0;
+                	}
+            	break;
+				default:
+					break;
+			}
+        }
 
         /*------------------------------------------------
             Reverse Mode Active
