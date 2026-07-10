@@ -36,7 +36,7 @@
 
 This project implements a **distributed automotive embedded system** using **three LPC2129 ARM7 nodes** interconnected over a **Controller Area Network (CAN)**.
 
-The system continuously monitors engine temperature, controls power window movement, and provides reverse obstacle detection using a **Sharp GP2D12 IR Distance Sensor**.
+The system continuously monitors engine temperature, controls power window movement, and provides reverse obstacle detection using a **Sharp GP2D12 IR Distance Sensor**. The latest version also incorporates **automatic CAN node monitoring**, enabling the Main Node to detect disconnected Window and Reverse nodes, display fault messages on the LCD, and safely recover to the dashboard without restarting the system.
 
 <br>
 
@@ -50,6 +50,7 @@ The system continuously monitors engine temperature, controls power window movem
 - Reverse obstacle detection
 - LCD dashboard
 - Real-time warnings
+- Error Node Handling
 
 <br>
 
@@ -62,6 +63,52 @@ The system continuously monitors engine temperature, controls power window movem
 </p>
 
 <br>
+
+---
+
+# ⭐ New Feature — Intelligent CAN Node Failure Detection
+
+One of the major enhancements implemented in this project is **real-time CAN Node Failure Detection and Recovery**.
+
+Unlike a conventional CAN demo where disconnected nodes simply stop responding, this system continuously monitors the availability of each distributed node and immediately informs the driver whenever a node becomes unavailable.
+
+The Main Node monitors communication from:
+
+- 🪟 Window Glass Control Node
+- 🚧 Reverse Alert Node
+
+If any node is disconnected (CANH/CANL wiring removed or node powered OFF), the system automatically:
+
+- Detects loss of CAN communication
+- Displays a dedicated LCD error message
+- Waits for a short timeout to avoid false detection
+- Returns automatically to the dashboard after displaying the warning
+- Prevents the system from hanging or freezing
+- Continues monitoring the remaining healthy CAN nodes
+
+This feature significantly improves the **robustness**, **fault tolerance**, and **user experience** of the embedded CAN network.
+
+---
+
+### Error Detection Workflow ⚠️
+
+<p align="center">
+<img src="Documentation/Images/Error Detection.png" width="900">
+</p>
+
+---
+
+### Advantages
+
+- Real-time node health monitoring
+- Automatic fault detection
+- Automatic recovery
+- No firmware restart required
+- Improved CAN network reliability
+- Better driver feedback
+
+<br>
+
 
 ---
 
@@ -188,15 +235,19 @@ CAN-Based-Engine-Monitoring-and-Vehicle-Control-System
 
 # 🚀 Features
 
-- ✅ Engine temperature monitoring
-- ✅ Normal/Warming/High/Critical alerts
-- ✅ CAN based communication
-- ✅ Window glass control
-- ✅ Reverse obstacle detection
-- ✅ GP2D12 ADC interface
-- ✅ LCD dashboard
-- ✅ Buzzer warning
-- ✅ Modular architecture
+- ✅ Distributed 3-Node CAN Architecture
+- ✅ Engine Temperature Monitoring
+- ✅ Normal / Warming / High / Critical Alerts
+- ✅ Power Window Control
+- ✅ Reverse Obstacle Detection
+- ✅ Real-time LCD Dashboard
+- ✅ Active Warning System
+- ✅ Automatic CAN Node Failure Detection ⭐
+- ✅ Window Node Error Detection
+- ✅ Reverse Node Error Detection
+- ✅ Automatic Dashboard Recovery
+- ✅ Fault-Tolerant CAN Communication
+- ✅ Modular Embedded Software Architecture
 
 <br>
 
@@ -358,6 +409,68 @@ CAN-Based-Engine-Monitoring-and-Vehicle-Control-System
 
 ---
 
+# 🚨 CAN Node Failure Detection
+
+> 📸 The following LCD screens demonstrate the intelligent fault detection mechanism implemented in the Main Node. Whenever any CAN node becomes unavailable, the system automatically detects the communication timeout, displays an informative error message, and safely returns to the dashboard.
+
+<table align="center">
+
+<tr>
+<th align="center">🪟 Window Node Failure</th>
+<th align="center">🚧 Reverse Node Failure</th>
+</tr>
+
+<tr>
+
+<td align="center">
+<img src="Window_glass_control_Node/Images/Window Node Error.png" width="420"/>
+<br>
+
+</td>
+
+<td align="center">
+<img src="Reverse_alert_node/Images/Reverse Node Error.png" width="420"/>
+<br>
+
+</td>
+
+</tr>
+
+</table>
+
+
+## 🛡 Fault Detection Workflow
+
+```text
+        🚀 User Action
+             │
+             ▼
+     📤 Transmit CAN Frame
+             │
+             ▼
+   🔍 Monitor CAN Response
+             │
+      ┌──────┴───────┐
+      │              │
+      ▼              ▼
+🟢 Frame Received   🔴 No Response
+      │              │
+      ▼              ▼
+Continue Mode    ⏱ Timeout Counter
+                     │
+                     ▼
+          📟 LCD Error Notification
+                     │
+                     ▼
+           🏠 Return to Dashboard
+                     │
+                     ▼
+        🔄 Resume Normal Operation
+```
+
+---
+
+
 # ▶ Build Instructions
 
 1. Open each node project in Keil uVision.
@@ -373,11 +486,12 @@ CAN-Based-Engine-Monitoring-and-Vehicle-Control-System
 
 # 📈 Future Enhancements
 
-- CAN Interrupt Mode
-- Vehicle Speed Monitoring
-- Engine RPM
-- Fuel Monitoring
-- OBD-II Integration
+- CAN Bus-Off Detection
+- CAN Error Passive Monitoring
+- Automatic Node Reconnection Detection
+- CAN Interrupt Driven Communication
+- Diagnostic Trouble Codes (DTC)
+- CAN Logger
 - FreeRTOS Migration
 
 <br>
