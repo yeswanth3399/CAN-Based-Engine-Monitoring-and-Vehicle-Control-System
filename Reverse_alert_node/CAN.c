@@ -53,8 +53,9 @@ void CAN1_Tx(struct CAN_Frame txFrame)
 {
     /* Wait for Transmit Buffer 1 Empty */
 
-    while((C1GSR & TBS1_BIT_READ) == 0);
-
+	u16 timeout=5000;
+    //while((C1GSR & TBS1_BIT_READ) == 0);
+	while(((C1GSR & TBS1_BIT_READ) == 0)&&timeout--);
     /* Load CAN Identifier */
 
     C1TID1 = txFrame.ID;

@@ -79,7 +79,7 @@ void CAN1_Tx(struct CAN_Frame txFrame)
 
     /* Wait for Transmission Complete */
 
-    while((C1GSR & TCS1_BIT_READ) == 0);
+    //while((C1GSR & TCS1_BIT_READ) == 0);
 }
 
 

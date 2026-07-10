@@ -89,7 +89,7 @@ int main(void)
 
                 Window_Up();
 
-                delay_ms(250);
+                delay_ms(150);
 
                 break;
 
@@ -97,7 +97,7 @@ int main(void)
 
                 Window_Down();
 
-                delay_ms(250);
+                delay_ms(150);
 
                 break;
 

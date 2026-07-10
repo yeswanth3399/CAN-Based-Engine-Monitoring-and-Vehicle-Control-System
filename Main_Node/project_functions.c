@@ -394,11 +394,11 @@ void Reverse_Mode_Screen(void)
 
 void Buzzer_Beep(void)
 {
-    IOSET0 = (1<<21);
+    IOCLR0 = (1<<21);
 
     delay_ms(300);
 
-    IOCLR0 = (1<<21);
+    IOSET0 = (1<<21);
 }
 
 /*=========================================================

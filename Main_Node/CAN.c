@@ -53,7 +53,9 @@ void CAN1_Tx(struct CAN_Frame txFrame)
 {
     /* Wait for Transmit Buffer 1 Empty */
 
-    while((C1GSR & TBS1_BIT_READ) == 0);
+    //while((C1GSR & TBS1_BIT_READ) == 0);
+	u16 timeout=5000;
+	while(((C1GSR & TBS1_BIT_READ) == 0)&&timeout--);
 
     /* Load CAN Identifier */
 
@@ -79,7 +81,7 @@ void CAN1_Tx(struct CAN_Frame txFrame)
 
     /* Wait for Transmission Complete */
 
-    while((C1GSR & TCS1_BIT_READ) == 0);
+    //while((C1GSR & TCS1_BIT_READ) == 0);
 }
 
 
@@ -95,7 +97,7 @@ u8 CAN1_Rx(struct CAN_Frame *rxFrame)
 	 if((C1GSR & RBS_BIT_READ) == 0)
 	 {
 	 	return 0;
-	  }
+	 }
     /* Read CAN Identifier */
 
     rxFrame->ID = C1RID;

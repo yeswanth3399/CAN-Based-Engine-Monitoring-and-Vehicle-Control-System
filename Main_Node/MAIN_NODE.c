@@ -23,7 +23,7 @@ volatile u8 ReverseStopPending = 0;
 
 volatile u16 WindowTimeout=0;
 volatile u16 ReverseTimeout=0;
-
+volatile u8 WindowAlive=0;
 /*=========================================================
  * CAN Frame Structures
  *=========================================================*/
@@ -75,7 +75,7 @@ int main(void)
     IODIR0 |= (1U << 21);
 
     /* Active HIGH buzzer OFF */
-    IOCLR0 = (1U << 21);
+    IOSET0 = (1U << 21);
 
     /*-----------------------------------------------------
      * Window Control CAN Frame
@@ -122,28 +122,24 @@ int main(void)
 
 										if(PreviousMode != WINDOW_UP_MODE)
 										{
-												Window_Up_Mode();
-
+												WindowTimeout=0;
+												
 												TX_frame1.Data1 = WINDOW_UP_START_CMD;
 												TX_frame1.Data2 = 0;
 
 												CAN1_Tx(TX_frame1);
-												WindowTimeout=0;
-												//WindowNodeAlive=0;
-
-												
+												Window_Up_Mode();
 												WindowStopPending = 1;
-
 												PreviousMode = WINDOW_UP_MODE;
 										}
 
-										Window_Up_Animation();
-										Dashboard_Update();
+									
 										if(CAN1_Rx(&Rx_frame))
 										{		
 											if(Rx_frame.ID == CAN_ID_WINDOW_STATUS)
 											{
 												WindowTimeout=0;
+												Window_Up_Animation();
 												//WindowNodeAlive=1;
 											}
 										}
@@ -151,14 +147,24 @@ int main(void)
 										{
 											WindowTimeout++;
 										}
-										if(WindowTimeout>50)
+										/*WindowTimeout++;
+										cmd_LCD(0x80);
+										u32_LCD(WindowTimeout);*/
+
+										if(WindowTimeout>5)
 										{
 											show_window_error();
 											
-											PreviousMode=CurrentMode;
+											PreviousMode=DASHBOARD_MODE;
 											CurrentMode=DASHBOARD_MODE;
 											WindowTimeout=0;
+											WindowStopPending = 0;
+											break;
 										}
+
+										
+										Dashboard_Update();
+										
 										delay_ms(30);
 
 										break;
@@ -169,46 +175,49 @@ int main(void)
 							case WINDOW_DOWN_MODE:
 
 									if(PreviousMode != WINDOW_DOWN_MODE)
-									{
-												Window_Down_Mode();
-
+										{
+												WindowTimeout=0;
+												
 												TX_frame1.Data1 = WINDOW_DOWN_START_CMD;
 												TX_frame1.Data2 = 0;
 
 												CAN1_Tx(TX_frame1);
-												WindowTimeout=0;
-												//WindowNodeAlive=0;
-
-
+												Window_Down_Mode();
 												WindowStopPending = 1;
-
 												PreviousMode = WINDOW_DOWN_MODE;
-									}
+										}
 
-									Window_Down_Animation();
-									Dashboard_Update();
-									if(CAN1_Rx(&Rx_frame))
-									{
+									
+										if(CAN1_Rx(&Rx_frame))
+										{		
 											if(Rx_frame.ID == CAN_ID_WINDOW_STATUS)
 											{
 												WindowTimeout=0;
+												Window_Down_Animation();
 												//WindowNodeAlive=1;
 											}
-									}
-									else
-									{
+										}
+										else
+										{
 											WindowTimeout++;
-									}
-									if(WindowTimeout>50)
-									{
+										}
+										if(WindowTimeout>5)
+										{
 											show_window_error();
-											PreviousMode=CurrentMode;
+											
+											PreviousMode=DASHBOARD_MODE;
 											CurrentMode=DASHBOARD_MODE;
 											WindowTimeout=0;
-									}
-									delay_ms(30);
+											WindowStopPending = 0;
+											break;
+										}
 
-									break;            
+										
+										Dashboard_Update();
+										
+										delay_ms(30);
+
+										break;           
 						/*=================================================
 						* REVERSE MODE
 						*================================================*/
