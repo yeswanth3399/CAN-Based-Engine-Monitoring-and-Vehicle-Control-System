@@ -66,7 +66,7 @@ The system continuously monitors engine temperature, controls power window movem
 
 ---
 
-# ⭐ New Feature — Intelligent CAN Node Failure Detection
+# ⭐ Intelligent CAN Node Failure Detection Implementation
 
 One of the major enhancements implemented in this project is **real-time CAN Node Failure Detection and Recovery**.
 
@@ -224,10 +224,11 @@ CAN-Based-Engine-Monitoring-and-Vehicle-Control-System
 # 📨 CAN Message IDs
 
 | CAN ID | Description |
-|---------|-------------|
-|0x101|Window Control|
-|0x102|Reverse Enable|
-|0x103|Distance Data|
+|------------|-------------|
+|WINDOW CTRL|       (0x101)
+| REVERSE ENABLE|   (0x102)
+|DISTANCE |         (0x103)
+|WINDOW STATUS|     (0x201)
 
 <br>
 

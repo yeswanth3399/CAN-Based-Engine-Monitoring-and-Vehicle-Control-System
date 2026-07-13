@@ -462,49 +462,5 @@ void show_reverse_error(void)
 }
 
 
-//Check Window Node
-
-u8 Check_Window_Node(void)
-{
-
-    u16 timeout = 100;
 
 
-    struct CAN_Frame frame;
-
-
-    while(timeout--)
-    {
-        if(CAN1_Rx(&frame))
-        {
-
-            if(frame.ID == CAN_ID_WINDOW_STATUS)
-				  return 1;
-        }
-        delay_ms(1);
-    }
-    return 0;
-}
-
-
-//check reverse node
-
-u8 Check_Reverse_Node(void)
-{
-    u16 timeout = 100;
-    struct CAN_Frame frame;
-
-    while(timeout--)
-    {
-        if(CAN1_Rx(&frame))
-        {
-            if((frame.ID == CAN_ID_DISTANCE) &&
-               (frame.vbf.DLC == 1))
-            {
-                return 1;
-            }
-         }
-        delay_ms(1);
-    }
-    return 0;
-}

@@ -28,11 +28,14 @@
 /* Reverse Alert Node -> Main Node */
 #define CAN_ID_DISTANCE         (0x103)
 
+//WINDOW NODE -> Main Node Window Status ID
+#define CAN_ID_WINDOW_STATUS     (0x201)
+
 /*====================================================================
  *                  WINDOW CONTROL COMMANDS
  *====================================================================*/
 
-#define CAN_ID_WINDOW_STATUS    0x201
+
 
 #define WINDOW_STOP_CMD         (0x00)
 
